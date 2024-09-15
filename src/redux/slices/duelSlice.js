@@ -7,7 +7,7 @@ const initialState = {
   error: null,
 };
 
-const API_URL = "https://your-duel-backend.onrender.com";
+const API_URL = "https://yourduel-backend.onrender.com";
 
 // Action pour récupérer les duels depuis le backend
 export const fetchDuels = createAsyncThunk(
