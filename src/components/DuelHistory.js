@@ -37,9 +37,6 @@ const DuelHistory = ({ userId }) => {
     socket.emit("joinRooms", { userId, duelId: null }); // S'assurer que l'utilisateur rejoint la room correcte
 
     socket.on("duelCompleted", () => {
-      console.log(
-        "Duel terminé, rafraîchissement de l'historique des duels..."
-      );
       fetchDuelHistory(currentPage); // Rafraîchir l'historique dès qu'un duel est terminé
     });
 

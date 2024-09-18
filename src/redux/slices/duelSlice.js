@@ -145,7 +145,6 @@ const duelSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchDuels.fulfilled, (state, action) => {
-        console.log("fetchDuels.fulfilled - duels récupérés :", action.payload); // Log pour vérifier les duels
         state.duels = action.payload;
         state.status = "succeeded";
       })

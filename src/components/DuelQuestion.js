@@ -26,18 +26,13 @@ const DuelQuestion = ({ duelId }) => {
   });
 
   useEffect(() => {
-    console.log("Composant DuelQuestion monté pour le duel:", duelId);
     const socket = io(API_URL);
 
     // Rejoins à la fois la room de l'utilisateur et du duel
     socket.emit("joinRooms", { userId, duelId });
-    console.log(
-      `Tentative de rejoindre les rooms pour user ${userId} et duel ${duelId}`
-    );
 
     // Événement pour accepter le duel
     socket.on("duelAccepted", (updatedDuel) => {
-      console.log("Duel accepté via WebSocket avec la question:", updatedDuel);
       dispatch(
         setQuestion({
           duelId: updatedDuel._id,
@@ -50,10 +45,6 @@ const DuelQuestion = ({ duelId }) => {
 
     // Événement pour compléter le duel
     socket.on("duelCompleted", (updatedDuel) => {
-      console.log(
-        "Événement duelCompleted reçu pour le duel:",
-        updatedDuel._id
-      );
       dispatch(
         setQuestion({
           duelId: updatedDuel._id,
@@ -65,7 +56,6 @@ const DuelQuestion = ({ duelId }) => {
         })
       );
       if (updatedDuel.status === "completed") {
-        console.log("Duel terminé et suppression en cours :", updatedDuel._id);
         dispatch(removeDuel(updatedDuel._id));
       }
     });

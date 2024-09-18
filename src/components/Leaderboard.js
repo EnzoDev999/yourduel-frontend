@@ -30,7 +30,6 @@ const Leaderboard = () => {
     const socket = io(API_URL);
 
     socket.on("leaderboardUpdated", () => {
-      console.log("Duel terminé, rafraîchissement du classement...");
       fetchLeaderboard(); // Rafraîchir le classement dès qu'un duel est terminé
     });
 

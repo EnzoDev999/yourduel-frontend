@@ -37,23 +37,16 @@ const PendingDuels = () => {
     const socket = io(API_URL);
 
     socket.emit("joinRooms", { userId, duelId: null });
-    console.log(`L'utilisateur ${userId} a rejoint le room WebSocket`);
 
     socket.on("duelReceived", (newDuel) => {
-      console.log("Nouveau duel reçu :", newDuel);
       dispatch(fetchDuels(userId));
     });
 
     socket.on("duelAccepted", (updatedDuel) => {
-      console.log(
-        "Duel accepté via WebSocket dans PendingDuels.js :",
-        updatedDuel
-      );
       dispatch(fetchDuels(userId)); // Met à jour les duels pour que la question apparaisse
     });
 
     socket.on("duelCancelled", (cancelledDuelId) => {
-      console.log("Duel annulé:", cancelledDuelId);
       dispatch(removeDuel(cancelledDuelId));
     });
 
@@ -66,9 +59,7 @@ const PendingDuels = () => {
 
   const handleAcceptDuel = async (duelId) => {
     try {
-      // Accepter le duel
-      const result = await dispatch(acceptDuel(duelId)).unwrap();
-      console.log("Duel accepté avec mise à jour :", result); // Vérifier que le duel accepté contient la question
+      await dispatch(acceptDuel(duelId)).unwrap();
     } catch (error) {
       console.error("Erreur lors de l'acceptation du duel :", error);
     }
