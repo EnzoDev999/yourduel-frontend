@@ -165,10 +165,6 @@ const duelSlice = createSlice({
           updatedDuel.question = action.payload.question;
           updatedDuel.options = action.payload.options;
           updatedDuel.correctAnswer = action.payload.correctAnswer;
-          console.log(
-            "acceotDuel Duel mis à jour avec la question :",
-            JSON.parse(JSON.stringify(updatedDuel))
-          ); // Utilisez current() pour déproxer
         } else {
           console.log("Duel non trouvé lors de l'acceptation"); // Ajoutez ce log pour être sûr que le duel est bien trouvé
         }
@@ -186,11 +182,6 @@ const duelSlice = createSlice({
           duel.question = action.payload.question;
           duel.options = action.payload.options;
           duel.correctAnswer = action.payload.correctAnswer;
-
-          console.log(
-            "fetchrandom Duel mis à jour avec la question :",
-            JSON.parse(JSON.stringify(duel))
-          );
         }
       })
       .addCase(fetchRandomQuestion.rejected, (state, action) => {

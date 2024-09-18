@@ -30,8 +30,6 @@ const Register = () => {
     if (email) {
       userData.email = email; // Ajouter l'email si présent
     }
-
-    console.log(userData);
     dispatch(registerUser(userData));
   };
 
