@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white h-20">
+    <footer className="bg-gray-800 text-white h-20 flex-shrink-0">
       <div className="max-w-screen-xl mx-auto px-4 flex justify-center items-center h-full space-x-8">
         <a href="/" className="hover:underline">
           Conditions d’utilisation
