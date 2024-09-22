@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import store from "./redux/store";
 import App from "./App";
 import axios from "axios";
+import "./index.css";
 
 // Sélectionne l'élément DOM où l'application sera montée
 const rootElement = document.getElementById("root");
