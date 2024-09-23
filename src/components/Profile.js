@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Navbar from "./Navbar";
 import CreateDuel from "./CreateDuel";
@@ -7,6 +7,8 @@ import DuelQuestion from "./DuelQuestion";
 import ResetDuelsButton from "./ResetDuelsButton";
 import DuelHistory from "./DuelHistory";
 import Leaderboard from "./Leaderboard";
+import ProfileCard from "./ProfileCard";
+import axios from "axios";
 
 const Profile = () => {
   const { isAuthenticated, userInfo, status, error } = useSelector(
@@ -21,6 +23,38 @@ const Profile = () => {
     )
   );
 
+  const [rank, setRank] = useState("N/A");
+  const API_URL =
+    window.location.hostname === "localhost"
+      ? process.env.REACT_APP_API_URL_LOCAL
+      : process.env.REACT_APP_API_URL_NETWORK;
+
+  useEffect(() => {
+    const fetchRanking = async () => {
+      try {
+        // Utilisation de la route `/users`
+        const response = await axios.get(`${API_URL}/api/auth/users`);
+        const allUsersData = await response.data;
+
+        // Trier les utilisateurs par points
+        const sortedUsers = allUsersData.sort((a, b) => b.points - a.points);
+
+        // Trouver l'index de l'utilisateur connecté, comparer les identifiants sous forme de chaînes
+        const userRank =
+          sortedUsers.findIndex(
+            (user) => String(user._id) === String(userInfo._id)
+          ) + 1;
+
+        // Mettre à jour le rang dans l'état local
+        setRank(userRank || "N/A");
+      } catch (error) {
+        console.error("Erreur lors de la récupération du classement :", error);
+      }
+    };
+
+    fetchRanking();
+  }, [userInfo, API_URL]);
+
   if (status === "loading") {
     return <p>Loading...</p>;
   }
@@ -34,13 +68,19 @@ const Profile = () => {
   }
 
   return (
-    <div>
+    <div className="bg-[#F5F5F5] min-h-screen">
       <Navbar />
-      <h2>Profile</h2>
       {userInfo ? (
         <div>
-          <p>Username: {userInfo.username}</p>
-          <p>Email: {userInfo.email || "No email provided"}</p>
+          {/* Composant ProfileCard */}
+          <ProfileCard
+            username={userInfo.username}
+            memberSince={new Date(userInfo.createdAt).toLocaleDateString()} // Convertir la date
+            gamesPlayed={userInfo.totalDuelsPlayed || 0} // Valeur par défaut si non disponible
+            gamesWon={userInfo.totalWins || 0} // Valeur par défaut si non disponible
+            rank={rank} // Rang calculé
+            points={userInfo.points || 0} // Afficher les points
+          />
 
           {/* Classement Général */}
           <Leaderboard />
