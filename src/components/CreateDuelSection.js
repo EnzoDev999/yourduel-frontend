@@ -20,6 +20,8 @@ const CreateDuelSection = () => {
           <PendingDuels />
         </div>
       </div>
+      {/* Ligne de séparation */}
+      <div className="w-full border-t border-gray-300 max-w-[1440px] mt-12"></div>
     </div>
   );
 };

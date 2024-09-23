@@ -44,11 +44,12 @@ const Profile = () => {
 
       <CreateDuelSection />
 
-      {duels.length > 0 ? (
-        duels.map((duel) => <DuelQuestion key={duel._id} duelId={duel._id} />)
-      ) : (
-        <p>Aucun duel en cours.</p>
-      )}
+      {/* Ligne de séparation
+      <div className="border-t border-gray-300 max-w-[1440px] flex flex-col justify-center mt-12"></div> */}
+
+      {/* Section Duels en cours */}
+      {duels.length > 0 ? <DuelQuestion /> : <p>Aucun duel en cours.</p>}
+
       <DuelHistory userId={userInfo._id} />
     </div>
   );
