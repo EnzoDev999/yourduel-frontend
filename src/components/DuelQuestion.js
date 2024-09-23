@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   submitAnswer,
@@ -6,8 +6,9 @@ import {
   removeDuel,
 } from "../redux/slices/duelSlice";
 import { io } from "socket.io-client";
-import LeftArrowIcon from "../assets/icon/leftArrow-icon.svg"; // Icônes pour navigation
+import LeftArrowIcon from "../assets/icon/leftArrow-icon.svg";
 import RightArrowIcon from "../assets/icon/rightArrow-icon.svg";
+import axios from "axios"; // Pour effectuer les requêtes API
 
 const API_URL =
   window.location.hostname === "localhost"
@@ -20,48 +21,55 @@ const DuelQuestion = () => {
   const [submittedAnswers, setSubmittedAnswers] = useState({});
   const [feedbacks, setFeedbacks] = useState({});
   const [currentDuelIndex, setCurrentDuelIndex] = useState(0);
-  const [duelResult, setDuelResult] = useState(null); // Pour afficher le résultat final
-  const [showResult, setShowResult] = useState(false); // Pour afficher le message temporairement
+  const [duelResult, setDuelResult] = useState(null);
+  const [showResult, setShowResult] = useState(false);
 
   // Sélection des duels avec des questions en cours
   const duels = useSelector((state) =>
     state.duel.duels.filter((duel) => duel.status === "accepted")
   );
 
-  const duel = duels[currentDuelIndex]; // Duel actuel
+  const duel = duels[currentDuelIndex];
+
+  // Utilisation de useCallback pour mémoïriser la fonction
+  const fetchPreviousAnswer = useCallback(
+    async (duelId) => {
+      try {
+        const response = await axios.get(`${API_URL}/api/duels/${duelId}`);
+        const duelData = response.data;
+
+        // Charger les réponses soumises précédemment
+        if (duelData.challenger.toString() === userId.toString()) {
+          setSubmittedAnswers((prevAnswers) => ({
+            ...prevAnswers,
+            [duelId]: {
+              selectedOption: duelData.challengerAnswer,
+              isSubmitted: duelData.challengerAnswered,
+            },
+          }));
+        } else if (duelData.opponent.toString() === userId.toString()) {
+          setSubmittedAnswers((prevAnswers) => ({
+            ...prevAnswers,
+            [duelId]: {
+              selectedOption: duelData.opponentAnswer,
+              isSubmitted: duelData.opponentAnswered,
+            },
+          }));
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des réponses précédentes :",
+          error
+        );
+      }
+    },
+    [userId]
+  );
 
   useEffect(() => {
     const socket = io(API_URL);
 
     socket.emit("joinRooms", { userId });
-
-    const handleDuelCompletion = (updatedDuel) => {
-      if (updatedDuel.winner === userId) {
-        setDuelResult("Vous avez gagné !");
-      } else if (updatedDuel.winner === "draw") {
-        setDuelResult("Égalité !");
-      } else {
-        setDuelResult("Vous avez perdu !");
-      }
-
-      // Affiche le résultat pendant 5 secondes avant de supprimer le duel
-      setShowResult(true);
-      setTimeout(() => {
-        dispatch(removeDuel(updatedDuel._id)); // Supprime le duel après 5 secondes
-        setShowResult(false); // Cache l'affichage du résultat
-      }, 5000);
-
-      dispatch(
-        setQuestion({
-          duelId: updatedDuel._id,
-          question: updatedDuel.question,
-          options: updatedDuel.options,
-          correctAnswer: updatedDuel.correctAnswer,
-          status: updatedDuel.status,
-          winner: updatedDuel.winner,
-        })
-      );
-    };
 
     socket.on("duelAccepted", (updatedDuel) => {
       dispatch(
@@ -74,13 +82,45 @@ const DuelQuestion = () => {
       );
     });
 
-    socket.on("duelCompleted", handleDuelCompletion);
+    socket.on("duelCompleted", (updatedDuel) => {
+      if (updatedDuel.status === "completed") {
+        if (updatedDuel.winner === userId) {
+          setDuelResult("Vous avez gagné !");
+        } else if (updatedDuel.winner === "draw") {
+          setDuelResult("Égalité !");
+        } else {
+          setDuelResult("Vous avez perdu !");
+        }
+
+        setShowResult(true);
+        setTimeout(() => {
+          dispatch(removeDuel(updatedDuel._id));
+          setShowResult(false);
+        }, 5000);
+      }
+
+      dispatch(
+        setQuestion({
+          duelId: updatedDuel._id,
+          question: updatedDuel.question,
+          options: updatedDuel.options,
+          correctAnswer: updatedDuel.correctAnswer,
+          status: updatedDuel.status,
+          winner: updatedDuel.winner,
+        })
+      );
+    });
+
+    // Appeler fetchPreviousAnswer lorsque le duel change
+    if (duel) {
+      fetchPreviousAnswer(duel._id);
+    }
 
     return () => {
       socket.off("duelAccepted");
-      socket.off("duelCompleted", handleDuelCompletion);
+      socket.off("duelCompleted");
     };
-  }, [dispatch, userId]);
+  }, [dispatch, userId, duel, fetchPreviousAnswer]);
 
   const handleSubmit = () => {
     if (duel && submittedAnswers[duel._id] && userId) {
@@ -93,20 +133,20 @@ const DuelQuestion = () => {
       )
         .unwrap()
         .then(() => {
-          setSubmittedAnswers({
-            ...submittedAnswers,
+          setSubmittedAnswers((prevAnswers) => ({
+            ...prevAnswers,
             [duel._id]: {
-              ...submittedAnswers[duel._id],
+              ...prevAnswers[duel._id],
               isSubmitted: true,
             },
-          });
-          setFeedbacks({
-            ...feedbacks,
+          }));
+          setFeedbacks((prevFeedbacks) => ({
+            ...prevFeedbacks,
             [duel._id]:
               submittedAnswers[duel._id].selectedOption === duel.correctAnswer
                 ? "Correct!"
                 : `Incorrect. La bonne réponse était : ${duel.correctAnswer}`,
-          });
+          }));
         })
         .catch((error) => {
           console.error("Erreur lors de la soumission de la réponse :", error);
@@ -147,7 +187,6 @@ const DuelQuestion = () => {
           Duels en cours
         </h2>
 
-        {/* Affichage du message de résultat pendant 5 secondes */}
         {showResult && (
           <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 mb-4 text-center">
             <p className="text-lg font-semibold text-center text-[#7D3C98] mb-4">
@@ -156,16 +195,14 @@ const DuelQuestion = () => {
           </div>
         )}
 
-        {/* Navigation et affichage de la question */}
         {!showResult && (
           <div className="flex justify-center items-center space-x-4">
-            {/* Flèche pour question précédente */}
             {duels.length > 1 && (
               <button onClick={prevDuel}>
                 <img src={LeftArrowIcon} alt="Previous" className="w-6 h-6" />
               </button>
             )}
-            {/* Carte de question */}
+
             <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full">
               <p className="text-lg font-semibold text-center text-[#7D3C98] mb-4">
                 {duel.question}
@@ -212,7 +249,7 @@ const DuelQuestion = () => {
                 </p>
               )}
             </div>
-            {/* Flèche pour question suivante */}
+
             {duels.length > 1 && (
               <button onClick={nextDuel}>
                 <img src={RightArrowIcon} alt="Next" className="w-6 h-6" />
