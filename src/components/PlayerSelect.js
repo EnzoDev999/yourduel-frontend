@@ -43,9 +43,10 @@ const PlayerSelect = ({ onSelectPlayer }) => {
     <div>
       <Select
         options={players}
-        onChange={onSelectPlayer} // Fonction appelée lors de la selection d'un joueur
+        onChange={onSelectPlayer}
         placeholder="Sélectionnez un joueur..."
-        isSearchable={true} // Permet de rechercher un joueur
+        isSearchable={true}
+        className="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
       />
     </div>
   );

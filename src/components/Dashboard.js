@@ -37,7 +37,7 @@ const Dashboard = () => {
   }, [userInfo, API_URL]);
 
   return (
-    <div className="container mx-auto max-w-[1440px] flex justify-center mt-8 px-4">
+    <div className="container mx-auto max-w-[1440px] flex flex-col justify-center mt-8 px-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {userInfo && (
           <ProfileCard

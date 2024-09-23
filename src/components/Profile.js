@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import Navbar from "./Navbar";
 import Dashboard from "./Dashboard";
-import CreateDuel from "./CreateDuel";
+import CreateDuelSection from "./CreateDuelSection";
 import PendingDuels from "./PendingDuels";
 import DuelQuestion from "./DuelQuestion";
 import ResetDuelsButton from "./ResetDuelsButton";
@@ -44,7 +44,7 @@ const Profile = () => {
         <p>No user information available.</p>
       )}
 
-      <CreateDuel />
+      <CreateDuelSection />
       <PendingDuels userId={userInfo._id} />
 
       {duels.length > 0 ? (
