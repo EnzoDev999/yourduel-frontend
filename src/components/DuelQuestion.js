@@ -35,35 +35,21 @@ const DuelQuestion = () => {
 
     socket.emit("joinRooms", { userId });
 
-    socket.on("duelAccepted", (updatedDuel) => {
-      dispatch(
-        setQuestion({
-          duelId: updatedDuel._id,
-          question: updatedDuel.question,
-          options: updatedDuel.options,
-          correctAnswer: updatedDuel.correctAnswer,
-        })
-      );
-    });
-
-    socket.on("duelCompleted", (updatedDuel) => {
-      // Mise à jour du résultat final
-      if (updatedDuel.status === "completed") {
-        if (updatedDuel.winner === userId) {
-          setDuelResult("Vous avez gagné !");
-        } else if (updatedDuel.winner === "draw") {
-          setDuelResult("Égalité !");
-        } else {
-          setDuelResult("Vous avez perdu !");
-        }
-
-        // Affiche le résultat pendant 5 secondes
-        setShowResult(true);
-        setTimeout(() => {
-          dispatch(removeDuel(updatedDuel._id)); // Supprime le duel après 5 secondes
-          setShowResult(false); // Cache l'affichage du résultat
-        }, 5000);
+    const handleDuelCompletion = (updatedDuel) => {
+      if (updatedDuel.winner === userId) {
+        setDuelResult("Vous avez gagné !");
+      } else if (updatedDuel.winner === "draw") {
+        setDuelResult("Égalité !");
+      } else {
+        setDuelResult("Vous avez perdu !");
       }
+
+      // Affiche le résultat pendant 5 secondes avant de supprimer le duel
+      setShowResult(true);
+      setTimeout(() => {
+        dispatch(removeDuel(updatedDuel._id)); // Supprime le duel après 5 secondes
+        setShowResult(false); // Cache l'affichage du résultat
+      }, 5000);
 
       dispatch(
         setQuestion({
@@ -75,11 +61,24 @@ const DuelQuestion = () => {
           winner: updatedDuel.winner,
         })
       );
+    };
+
+    socket.on("duelAccepted", (updatedDuel) => {
+      dispatch(
+        setQuestion({
+          duelId: updatedDuel._id,
+          question: updatedDuel.question,
+          options: updatedDuel.options,
+          correctAnswer: updatedDuel.correctAnswer,
+        })
+      );
     });
+
+    socket.on("duelCompleted", handleDuelCompletion);
 
     return () => {
       socket.off("duelAccepted");
-      socket.off("duelCompleted");
+      socket.off("duelCompleted", handleDuelCompletion);
     };
   }, [dispatch, userId]);
 
