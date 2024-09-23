@@ -1,52 +1,27 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import {
-  acceptDuel,
-  setQuestion,
-  setStatus,
-  setError,
-} from "../redux/slices/duelSlice";
-import questionsData from "../data/questions.json"; // Importation des questions locales
+// import React from "react";
+// import { useDispatch } from "react-redux";
+// import { acceptDuel } from "../redux/slices/duelSlice"; // Import de l'action acceptDuel
 
-const AcceptDuel = ({ duelId, category }) => {
-  const dispatch = useDispatch();
+// const AcceptDuel = ({ duelId }) => {
+//   const dispatch = useDispatch();
 
-  const getRandomQuestion = (category) => {
-    const filteredQuestions = category
-      ? questionsData.questions.filter((q) => q.category === category)
-      : questionsData.questions;
+//   const handleAcceptDuel = async () => {
+//     try {
+//       // Dispatch de l'action acceptDuel
+//       await dispatch(acceptDuel(duelId)).unwrap();
+//     } catch (error) {
+//       console.error("Erreur lors de l'acceptation du duel :", error);
+//     }
+//   };
 
-    return filteredQuestions[
-      Math.floor(Math.random() * filteredQuestions.length)
-    ];
-  };
+//   return (
+//     <button
+//       className="bg-green-500 text-white px-4 py-2 rounded"
+//       onClick={handleAcceptDuel}
+//     >
+//       Accepter le duel
+//     </button>
+//   );
+// };
 
-  const handleAcceptDuel = async () => {
-    dispatch(setStatus("loading"));
-
-    try {
-      dispatch(acceptDuel(duelId));
-
-      const questionData = getRandomQuestion(category); // Sélectionne une question aléatoire
-
-      dispatch(
-        setQuestion({
-          duelId,
-          question: questionData.question,
-          options: questionData.options,
-          correctAnswer: questionData.correctAnswer,
-        })
-      );
-
-      dispatch(setStatus("succeeded"));
-    } catch (error) {
-      console.error("Erreur lors de la sélection des questions:", error);
-      dispatch(setError("Failed to select question. Please try again."));
-      dispatch(setStatus("failed"));
-    }
-  };
-
-  return <button onClick={handleAcceptDuel}>Accepter le duel</button>;
-};
-
-export default AcceptDuel;
+// export default AcceptDuel;

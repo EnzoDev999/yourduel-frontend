@@ -3,9 +3,7 @@ import { useSelector } from "react-redux";
 import Navbar from "./Navbar";
 import Dashboard from "./Dashboard";
 import CreateDuelSection from "./CreateDuelSection";
-import PendingDuels from "./PendingDuels";
 import DuelQuestion from "./DuelQuestion";
-import ResetDuelsButton from "./ResetDuelsButton";
 import DuelHistory from "./DuelHistory";
 
 const Profile = () => {
@@ -45,15 +43,12 @@ const Profile = () => {
       )}
 
       <CreateDuelSection />
-      <PendingDuels userId={userInfo._id} />
 
       {duels.length > 0 ? (
         duels.map((duel) => <DuelQuestion key={duel._id} duelId={duel._id} />)
       ) : (
         <p>Aucun duel en cours.</p>
       )}
-
-      <ResetDuelsButton />
       <DuelHistory userId={userInfo._id} />
     </div>
   );

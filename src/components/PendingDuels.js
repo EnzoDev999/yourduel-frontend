@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchDuels,
@@ -7,6 +7,8 @@ import {
   removeDuel,
 } from "../redux/slices/duelSlice";
 import { io } from "socket.io-client";
+import LeftArrowIcon from "../assets/icon/leftArrow-icon.svg";
+import RightArrowIcon from "../assets/icon/rightArrow-icon.svg";
 
 const API_URL =
   window.location.hostname === "localhost"
@@ -17,14 +19,15 @@ const PendingDuels = () => {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.userInfo._id);
   const duels = useSelector((state) => state.duel.duels);
-  const duelStatus = useSelector((state) => state.duel.status);
 
-  // Filtre des duels envoyés par l'utilisateur (en attente de réponse)
+  // Indices pour naviguer dans les duels
+  const [sentIndex, setSentIndex] = useState(0);
+  const [receivedIndex, setReceivedIndex] = useState(0);
+
+  // Filtrer les duels envoyés et reçus
   const sentDuels = duels.filter(
     (duel) => duel.challenger === userId && duel.status === "pending"
   );
-
-  // Filtre des duels reçus par l'utilisateur (en attente d'acceptation ou de refus)
   const receivedDuels = duels.filter(
     (duel) => duel.opponent === userId && duel.status === "pending"
   );
@@ -38,12 +41,12 @@ const PendingDuels = () => {
 
     socket.emit("joinRooms", { userId, duelId: null });
 
-    socket.on("duelReceived", (newDuel) => {
+    socket.on("duelReceived", () => {
       dispatch(fetchDuels(userId));
     });
 
-    socket.on("duelAccepted", (updatedDuel) => {
-      dispatch(fetchDuels(userId)); // Met à jour les duels pour que la question apparaisse
+    socket.on("duelAccepted", () => {
+      dispatch(fetchDuels(userId));
     });
 
     socket.on("duelCancelled", (cancelledDuelId) => {
@@ -57,6 +60,29 @@ const PendingDuels = () => {
     };
   }, [dispatch, userId]);
 
+  // Fonctions pour naviguer dans les duels envoyés et reçus
+  const nextSentDuel = () => {
+    setSentIndex((sentIndex + 1) % sentDuels.length); // Revenir au début après la fin
+  };
+
+  const prevSentDuel = () => {
+    setSentIndex((sentIndex - 1 + sentDuels.length) % sentDuels.length); // Revenir à la fin après le début
+  };
+
+  const nextReceivedDuel = () => {
+    setReceivedIndex((receivedIndex + 1) % receivedDuels.length);
+  };
+
+  const prevReceivedDuel = () => {
+    setReceivedIndex(
+      (receivedIndex - 1 + receivedDuels.length) % receivedDuels.length
+    );
+  };
+
+  const handleCancelDuel = (duelId) => {
+    dispatch(deleteDuel(duelId));
+  };
+
   const handleAcceptDuel = async (duelId) => {
     try {
       await dispatch(acceptDuel(duelId)).unwrap();
@@ -65,55 +91,105 @@ const PendingDuels = () => {
     }
   };
 
-  const handleCancelDuel = (duelId) => {
-    dispatch(deleteDuel(duelId));
-  };
-
   return (
-    <div>
-      <h2>Duels en attente</h2>
-
-      {duelStatus === "loading" ? (
-        <p>Chargement des duels...</p>
-      ) : (
-        <>
-          <h3>Duels que vous avez envoyés (en attente de réponse)</h3>
+    <div className="duels-en-attente-section w-[800px] p-8 bg-white rounded-lg shadow-lg border border-gray-300">
+      <h2 className="text-2xl font-bold text-center mb-6 text-[#7D3C98]">
+        Duels en attente
+      </h2>
+      <div className="flex justify-center space-x-8">
+        {/* Duels envoyés */}
+        <div className="duel-slider flex flex-col items-center w-1/2">
+          <h3 className="font-semibold text-[#7D3C98] mb-4">Duels envoyés</h3>
           {sentDuels.length > 0 ? (
-            sentDuels.map((duel) => (
-              <div key={duel._id}>
-                <p>Catégorie : {duel.category}</p>
-                <p>Envoyé à : {duel.opponentUsername}</p>
-                <p>Status : En attente de réponse</p>
-                <button onClick={() => handleCancelDuel(duel._id)}>
+            <div className="flex items-center space-x-4">
+              {sentDuels.length > 1 && (
+                <button onClick={prevSentDuel}>
+                  <img src={LeftArrowIcon} alt="Previous" className="w-6 h-6" />
+                </button>
+              )}
+              <div className="duel-card bg-gray-50 p-6 shadow-lg rounded-lg border border-gray-300">
+                <p className="font-semibold text-[#7D3C98]">Catégorie :</p>
+                <p className="text-gray-600 mb-2">
+                  {sentDuels[sentIndex].category}
+                </p>
+                <p className="font-semibold text-[#7D3C98]">Envoyé à :</p>
+                <p className="text-gray-600 mb-2">
+                  {sentDuels[sentIndex].opponentUsername}
+                </p>
+                <p className="font-semibold text-[#7D3C98]">Status :</p>
+                <p className="text-gray-600 mb-4">En attente de réponse</p>
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded"
+                  onClick={() => handleCancelDuel(sentDuels[sentIndex]._id)}
+                >
                   Annuler le Duel
                 </button>
               </div>
-            ))
+              {sentDuels.length > 1 && (
+                <button onClick={nextSentDuel}>
+                  <img src={RightArrowIcon} alt="Next" className="w-6 h-6" />
+                </button>
+              )}
+            </div>
           ) : (
-            <p>Aucun duel en attente de réponse.</p>
+            <p className="text-gray-600">Aucun duel en attente de réponse.</p>
           )}
+        </div>
 
-          <h3>Duels reçus</h3>
+        {/* Ligne de séparation verticale */}
+        <div className="w-px bg-gray-300"></div>
+
+        {/* Duels reçus */}
+        <div className="duel-slider flex flex-col items-center w-1/2">
+          <h3 className="font-semibold text-[#7D3C98] mb-4">Duels reçus</h3>
           {receivedDuels.length > 0 ? (
-            receivedDuels.map((duel) => (
-              <div key={duel._id}>
-                <p>Catégorie : {duel.category}</p>
-                <p>Adversaire : {duel.challengerUsername}</p>
-                <button
-                  onClick={() => handleAcceptDuel(duel._id, duel.category)}
-                >
-                  Accepter le Duel
+            <div className="flex items-center space-x-4">
+              {receivedDuels.length > 1 && (
+                <button onClick={prevReceivedDuel}>
+                  <img src={LeftArrowIcon} alt="Previous" className="w-6 h-6" />
                 </button>
-                <button onClick={() => handleCancelDuel(duel._id)}>
-                  Refuser le Duel
-                </button>
+              )}
+              <div className="duel-card bg-gray-50 p-6 shadow-lg rounded-lg border border-gray-300">
+                <p className="font-semibold text-[#7D3C98]">Catégorie :</p>
+                <p className="text-gray-600 mb-2">
+                  {receivedDuels[receivedIndex].category}
+                </p>
+                <p className="font-semibold text-[#7D3C98]">Adversaire :</p>
+                <p className="text-gray-600 mb-4">
+                  {receivedDuels[receivedIndex].challengerUsername}
+                </p>
+                <div className="flex space-x-4">
+                  <button
+                    className="bg-green-500 text-white px-4 py-2 rounded"
+                    onClick={() =>
+                      handleAcceptDuel(receivedDuels[receivedIndex]._id)
+                    }
+                  >
+                    Accepter
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                    onClick={() =>
+                      handleCancelDuel(receivedDuels[receivedIndex]._id)
+                    }
+                  >
+                    Refuser
+                  </button>
+                </div>
               </div>
-            ))
+              {receivedDuels.length > 1 && (
+                <button onClick={nextReceivedDuel}>
+                  <img src={RightArrowIcon} alt="Next" className="w-6 h-6" />
+                </button>
+              )}
+            </div>
           ) : (
-            <p>Vous n'avez pas d'invitations en attente.</p>
+            <p className="text-gray-600">
+              Vous n'avez pas de duels reçus en attente.
+            </p>
           )}
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 };
