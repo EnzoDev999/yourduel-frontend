@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
+import LeftArrowIcon from "../assets/icon/leftArrow-icon.svg";
+import RightArrowIcon from "../assets/icon/rightArrow-icon.svg";
 
 const DuelHistory = ({ userId }) => {
   const [duelHistory, setDuelHistory] = useState([]);
@@ -18,7 +20,7 @@ const DuelHistory = ({ userId }) => {
     const fetchDuelHistory = async (page = 1) => {
       try {
         const response = await axios.get(
-          `${API_URL}/api/auth/duelHistory/${userId}?page=${page}&limit=3`
+          `${API_URL}/api/auth/duelHistory/${userId}?page=${page}&limit=1`
         );
         setDuelHistory(response.data.duels);
         setTotalPages(response.data.totalPages);
@@ -31,13 +33,11 @@ const DuelHistory = ({ userId }) => {
 
     fetchDuelHistory(currentPage);
 
-    // Écouter l'événement "duelCompleted" via WebSocket
     const socket = io(API_URL);
-
-    socket.emit("joinRooms", { userId, duelId: null }); // S'assurer que l'utilisateur rejoint la room correcte
+    socket.emit("joinRooms", { userId, duelId: null });
 
     socket.on("duelCompleted", () => {
-      fetchDuelHistory(currentPage); // Rafraîchir l'historique dès qu'un duel est terminé
+      fetchDuelHistory(currentPage);
     });
 
     return () => {
@@ -61,56 +61,82 @@ const DuelHistory = ({ userId }) => {
     return <p>Aucun duel joué.</p>;
   }
 
-  return (
-    <div>
-      <h3>Historique des duels</h3>
-      <ul>
-        {duelHistory.map((duel, index) => (
-          <li key={index}>
-            <p>
-              <strong>Adversaire :</strong> {duel.opponentUsername}
-            </p>
-            <p>
-              <strong>Résultat:</strong>{" "}
-              {duel.result === "win"
-                ? "Victoire"
-                : duel.result === "loss"
-                ? "Défaite"
-                : "Égalité"}
-            </p>
-            <p>
-              <strong>Question :</strong> {duel.question}
-            </p>
-            <p>
-              <strong>Votre réponse:</strong> {duel.userAnswer || "N/A"}
-            </p>
-            <p>
-              <strong>Bonne réponse:</strong> {duel.correctAnswer}
-            </p>
-            <p>
-              <strong>Points gagnés:</strong> {duel.pointsGained}
-            </p>
-          </li>
-        ))}
-      </ul>
+  const getResultColor = (result) => {
+    switch (result) {
+      case "win":
+        return "text-green-500";
+      case "loss":
+        return "text-red-500";
+      case "draw":
+        return "text-orange-500";
+      default:
+        return "text-gray-600";
+    }
+  };
 
-      {/* Pagination */}
-      <div>
-        <button
-          disabled={currentPage === 1}
-          onClick={() => handlePageChange(currentPage - 1)}
-        >
-          Précédent
-        </button>
-        <span>
-          Page {currentPage} sur {totalPages}
-        </span>
-        <button
-          disabled={currentPage === totalPages}
-          onClick={() => handlePageChange(currentPage + 1)}
-        >
-          Suivant
-        </button>
+  return (
+    <div className="duel-history-section mx-auto max-w-[1440px] flex flex-col items-center justify-center mt-12 pb-12">
+      <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-300 w-[800px]">
+        <h2 className="text-xl font-bold text-center text-[#7D3C98] mb-6">
+          Historique des Duels
+        </h2>
+
+        {/* Navigation des pages */}
+        <div className="flex justify-center items-center space-x-4 mb-4">
+          {totalPages > 1 && (
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <img src={LeftArrowIcon} alt="Précédent" className="w-6 h-6" />
+            </button>
+          )}
+          <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full">
+            {/* Affichage du duel actuel */}
+            {duelHistory.map((duel, index) => (
+              <div key={index}>
+                <p className="font-semibold text-[#7D3C98]">
+                  Adversaire :{" "}
+                  <span className="text-gray-600">{duel.opponentUsername}</span>
+                </p>
+                <p className="font-semibold text-[#7D3C98]">
+                  Question :{" "}
+                  <span className="text-gray-600">{duel.question}</span>
+                </p>
+                <p className="font-semibold text-[#7D3C98]">
+                  Votre réponse :{" "}
+                  <span className="text-gray-600">{duel.userAnswer}</span>
+                </p>
+                <p className="font-semibold text-[#7D3C98]">
+                  Bonne réponse :{" "}
+                  <span className="text-green-600">{duel.correctAnswer}</span>
+                </p>
+                <p className="font-semibold text-[#7D3C98]">
+                  Résultat :{" "}
+                  <span className={getResultColor(duel.result)}>
+                    {duel.result === "win"
+                      ? "Victoire"
+                      : duel.result === "loss"
+                      ? "Défaite"
+                      : "Égalité"}
+                  </span>
+                </p>
+                <p className="font-semibold text-[#7D3C98]">
+                  Points gagnés :{" "}
+                  <span className="text-gray-600">{duel.pointsGained}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <img src={RightArrowIcon} alt="Suivant" className="w-6 h-6" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

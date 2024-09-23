@@ -11,13 +11,13 @@ const Profile = () => {
     (state) => state.user
   );
 
-  const duels = useSelector((state) =>
-    state.duel.duels.filter(
-      (duel) =>
-        duel.status === "accepted" &&
-        (duel.challenger === userInfo._id || duel.opponent === userInfo._id)
-    )
-  );
+  // const duels = useSelector((state) =>
+  //   state.duel.duels.filter(
+  //     (duel) =>
+  //       duel.status === "accepted" &&
+  //       (duel.challenger === userInfo._id || duel.opponent === userInfo._id)
+  //   )
+  // );
 
   if (status === "loading") {
     return <p>Loading...</p>;
@@ -48,7 +48,7 @@ const Profile = () => {
       <div className="border-t border-gray-300 max-w-[1440px] flex flex-col justify-center mt-12"></div> */}
 
       {/* Section Duels en cours */}
-      {duels.length > 0 ? <DuelQuestion /> : <p>Aucun duel en cours.</p>}
+      <DuelQuestion />
 
       <DuelHistory userId={userInfo._id} />
     </div>

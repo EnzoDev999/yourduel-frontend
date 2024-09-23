@@ -173,7 +173,23 @@ const DuelQuestion = () => {
   };
 
   if (!duel) {
-    return <p>Aucun duel en cours.</p>;
+    return (
+      <div className="duel-question-section mx-auto max-w-[1440px] flex flex-col items-center justify-center mt-12">
+        <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-300 w-[800px]">
+          <h2 className="text-xl font-bold text-center text-[#7D3C98] mb-6">
+            Duels en cours
+          </h2>
+          <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full text-center">
+            <p className="text-lg font-semibold text-center text-gray-600">
+              Aucun duel en cours pour le moment.
+            </p>
+            <p className="text-md text-center text-gray-500 mt-2">
+              Revenez plus tard ou lancez un nouveau duel !
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const selectedOption = submittedAnswers[duel._id]?.selectedOption || "";
