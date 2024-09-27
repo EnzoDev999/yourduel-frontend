@@ -19,6 +19,11 @@ const CreateDuel = () => {
 
     const opponentId = selectedOpponent.value;
 
+    if (opponentId === userId) {
+      alert("Vous ne pouvez pas vous envoyer un duel avec vous-même.");
+      return;
+    }
+
     // Créer un nouveau duel avec les informations minimales requises
     const newDuel = {
       challenger: userId, // ID de l'utilisateur connecté
