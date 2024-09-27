@@ -59,7 +59,10 @@ const CreateDuel = () => {
           <label className="block text-gray-600 mb-2 font-semibold">
             Choisissez un adversaire
           </label>
-          <PlayerSelect onSelectPlayer={setSelectedOpponent} />
+          <PlayerSelect
+            onSelectPlayer={(player) => setSelectedOpponent(player)}
+            selectedPlayer={selectedOpponent} // Associer l'état `selectedOpponent` à `PlayerSelect`
+          />
         </div>
         <div className="flex justify-center">
           <button

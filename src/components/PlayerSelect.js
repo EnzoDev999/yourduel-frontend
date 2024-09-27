@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import axios from "axios";
 
-const PlayerSelect = ({ onSelectPlayer }) => {
+const PlayerSelect = ({ onSelectPlayer, selectedPlayer }) => {
+  // Ajout de `selectedPlayer` en prop
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,6 +45,7 @@ const PlayerSelect = ({ onSelectPlayer }) => {
       <Select
         options={players}
         onChange={onSelectPlayer}
+        value={selectedPlayer} // Associer l'état `selectedPlayer` à la valeur du composant Select
         placeholder="Sélectionnez un joueur..."
         isSearchable={true}
         className="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
