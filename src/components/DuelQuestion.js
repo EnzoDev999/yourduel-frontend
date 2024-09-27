@@ -174,16 +174,16 @@ const DuelQuestion = () => {
 
   if (!duel) {
     return (
-      <div className="duel-question-section mx-auto max-w-[1440px] flex flex-col items-center justify-center mt-12">
-        <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-300 w-[800px]">
-          <h2 className="text-xl font-bold text-center text-[#7D3C98] mb-6">
+      <div className="duel-question-section mx-auto max-w-full md:max-w-[1440px] flex flex-col items-center justify-center mt-6 md:mt-12 px-4">
+        <div className="bg-white p-4 md:p-8 rounded-lg shadow-lg border border-gray-300 w-full sm:w-[500px] md:w-[600px] lg:w-[800px]">
+          <h2 className="text-lg md:text-xl font-bold text-center text-[#7D3C98] mb-4 md:mb-6">
             Duels en cours
           </h2>
-          <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full text-center">
-            <p className="text-lg font-semibold text-center text-gray-600">
+          <div className="bg-gray-50 p-4 md:p-6 rounded-lg shadow-md border border-gray-300 w-full text-center">
+            <p className="text-md md:text-lg font-semibold text-center text-gray-600">
               Aucun duel en cours pour le moment.
             </p>
-            <p className="text-md text-center text-gray-500 mt-2">
+            <p className="text-sm md:text-md text-center text-gray-500 mt-2">
               Revenez plus tard ou lancez un nouveau duel !
             </p>
           </div>
@@ -197,11 +197,12 @@ const DuelQuestion = () => {
   const feedback = feedbacks[duel._id] || "";
 
   return (
-    <div className="duel-question-section mx-auto max-w-[1440px] flex flex-col items-center justify-center mt-12">
-      <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-300 w-[800px]">
+    <div className="duel-question-section mx-auto max-w-[1440px] flex flex-col items-center justify-center mt-12 px-4 md:px-0">
+      <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-300 w-full md:w-[800px]">
         <h2 className="text-xl font-bold text-center text-[#7D3C98] mb-6">
           Duels en cours
         </h2>
+
         {showResult && (
           <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 mb-4 text-center">
             <p className="text-lg font-semibold text-center text-[#7D3C98] mb-4">
@@ -209,55 +210,48 @@ const DuelQuestion = () => {
             </p>
           </div>
         )}
+
         {!showResult && (
-          <div className="flex justify-center items-center space-x-4">
+          <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
             {duels.length > 1 && (
               <button onClick={prevDuel}>
                 <img src={LeftArrowIcon} alt="Previous" className="w-6 h-6" />
               </button>
             )}
 
-            <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full">
+            <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full md:w-auto">
               <p className="text-lg font-semibold text-center text-[#7D3C98] mb-4">
                 {duel.question}
               </p>
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {duel.options.map((option, index) => {
-                  // Définir les variables booléennes pour clarifier les conditions
-                  const isCorrect = option === duel.correctAnswer;
-                  const isSelected = option === selectedOption;
-                  const isIncorrectSelection = isSelected && !isCorrect;
-
-                  // Retourner le bouton avec les classes appropriées
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => handleSelectOption(option)}
-                      disabled={isSubmitted}
-                      className={`py-3 rounded-lg border border-gray-300 text-center ${
-                        // Ne montrer la couleur que lorsque la réponse est soumise
-                        isSubmitted && isCorrect
-                          ? "bg-green-500 text-black"
-                          : ""
-                      } ${
-                        isSubmitted && isIncorrectSelection
-                          ? "bg-red-500 text-white"
-                          : ""
-                      } ${
-                        // Appliquer le style de sélection uniquement avant la soumission
-                        !isSubmitted && isSelected
-                          ? "bg-[#7D3C98] text-white"
-                          : ""
-                      } ${
-                        !isSubmitted && !isSelected
-                          ? "bg-white text-gray-600"
-                          : ""
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  );
-                })}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {duel.options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSelectOption(option)}
+                    disabled={isSubmitted}
+                    className={`py-3 rounded-lg border border-gray-300 text-center ${
+                      isSubmitted && option === duel.correctAnswer
+                        ? "bg-green-500 text-black"
+                        : ""
+                    } ${
+                      isSubmitted &&
+                      selectedOption === option &&
+                      selectedOption !== duel.correctAnswer
+                        ? "bg-red-500 text-white"
+                        : ""
+                    } ${
+                      !isSubmitted && selectedOption === option
+                        ? "bg-[#7D3C98] text-white"
+                        : ""
+                    } ${
+                      !isSubmitted && !selectedOption === option
+                        ? "bg-white text-gray-600"
+                        : ""
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
               </div>
 
               <button

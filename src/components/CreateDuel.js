@@ -39,7 +39,7 @@ const CreateDuel = () => {
   };
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg shadow-lg shadow-gray-400 p-8 max-w-md mx-auto">
+    <div className="bg-white border border-gray-300 rounded-lg shadow-lg shadow-gray-400 p-8 w-full max-w-lg mx-auto md:my-6">
       <h2 className="text-xl font-bold text-purple-600 mb-4 text-center">
         Créer un nouveau Duel
       </h2>
@@ -57,7 +57,6 @@ const CreateDuel = () => {
             <option value="Science">Science</option>
             <option value="Histoire">Histoire</option>
             <option value="Sport">Sport</option>
-            {/* Ajoutez d'autres catégories selon vos besoins */}
           </select>
         </div>
         <div className="mb-4">

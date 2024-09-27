@@ -75,14 +75,13 @@ const DuelHistory = ({ userId }) => {
   };
 
   return (
-    <div className="duel-history-section mx-auto max-w-[1440px] flex flex-col items-center justify-center mt-12 pb-12">
-      <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-300 w-[800px]">
+    <div className="duel-history-section mx-auto max-w-[1440px] flex flex-col items-center justify-center mt-12 pb-12 px-4 md:px-0">
+      <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-300 w-full md:w-[800px]">
         <h2 className="text-xl font-bold text-center text-[#7D3C98] mb-6">
           Historique des Duels
         </h2>
 
-        {/* Navigation des pages */}
-        <div className="flex justify-center items-center space-x-4 mb-4">
+        <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 mb-4">
           {totalPages > 1 && (
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -91,10 +90,10 @@ const DuelHistory = ({ userId }) => {
               <img src={LeftArrowIcon} alt="Précédent" className="w-6 h-6" />
             </button>
           )}
-          <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full">
-            {/* Affichage du duel actuel */}
+
+          <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full md:w-auto">
             {duelHistory.map((duel, index) => (
-              <div key={index}>
+              <div key={index} className="mb-4">
                 <p className="font-semibold text-[#7D3C98]">
                   Adversaire :{" "}
                   <span className="text-gray-600">{duel.opponentUsername}</span>
@@ -128,6 +127,7 @@ const DuelHistory = ({ userId }) => {
               </div>
             ))}
           </div>
+
           {totalPages > 1 && (
             <button
               onClick={() => handlePageChange(currentPage + 1)}

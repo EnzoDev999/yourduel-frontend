@@ -92,13 +92,14 @@ const PendingDuels = () => {
   };
 
   return (
-    <div className="duels-en-attente-section w-[800px] p-8 bg-white rounded-lg shadow-lg border border-gray-300">
+    <div className="duels-en-attente-section w-full md:w-[800px] p-4 md:p-8 bg-white rounded-lg shadow-lg border border-gray-300 mx-auto">
       <h2 className="text-2xl font-bold text-center mb-6 text-[#7D3C98]">
         Duels en attente
       </h2>
-      <div className="flex justify-center space-x-8">
+      {/* Ajustement de la disposition pour desktop */}
+      <div className="flex flex-col md:flex-row justify-center md:space-x-8 space-y-4 md:space-y-0">
         {/* Duels envoyés */}
-        <div className="duel-slider flex flex-col items-center w-1/2">
+        <div className="duel-slider flex flex-col items-center w-full md:w-1/2">
           <h3 className="font-semibold text-[#7D3C98] mb-4">Duels envoyés</h3>
           {sentDuels.length > 0 ? (
             <div className="flex items-center space-x-4">
@@ -137,10 +138,10 @@ const PendingDuels = () => {
         </div>
 
         {/* Ligne de séparation verticale */}
-        <div className="w-px bg-gray-300"></div>
+        <div className="w-px bg-gray-300 hidden md:block"></div>
 
         {/* Duels reçus */}
-        <div className="duel-slider flex flex-col items-center w-1/2">
+        <div className="duel-slider flex flex-col items-center w-full md:w-1/2">
           <h3 className="font-semibold text-[#7D3C98] mb-4">Duels reçus</h3>
           {receivedDuels.length > 0 ? (
             <div className="flex items-center space-x-4">

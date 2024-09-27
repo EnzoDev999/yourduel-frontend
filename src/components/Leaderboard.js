@@ -98,32 +98,79 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="bg-[#F5F5F5] border border-gray-300 rounded-lg shadow-lg shadow-gray-400 p-6 w-[550px] h-auto mx-auto">
-      <h3 className="text-xl font-semibold mb-4">Classement</h3>
-      <table className="w-full text-center">
-        <thead>
-          <tr className="text-gray-500">
-            <th className="pb-2 w-1/5">Position</th>
-            <th className="pb-2 w-1/5">Username</th>
-            <th className="pb-2 w-1/5">Points</th>
-            <th className="pb-2 w-1/5">Parties jouées</th>
-            <th className="pb-2 w-1/5">Victoires</th>
-          </tr>
-        </thead>
-        <tbody>
-          {leaderboard.map((user, index) => (
-            <tr key={user._id} className="border-b border-gray-200">
-              <td className="py-2 flex justify-center">
-                {getMedalIcon(index + 1)}
-              </td>
-              <td className="text-purple-700 font-semibold">{user.username}</td>
-              <td>{user.points}</td>
-              <td>{user.totalDuelsPlayed}</td>
-              <td>{user.totalWins}</td>
+    <div className="bg-[#F5F5F5] border border-gray-300 rounded-lg shadow-lg shadow-gray-400 p-6 w-full md:w-[550px] h-auto mx-auto">
+      <h3 className="text-xl font-semibold mb-4 text-center md:text-left">
+        Classement
+      </h3>
+      <div className="overflow-x-auto">
+        <table className="w-full text-center">
+          <thead>
+            <tr className="text-gray-500 hidden md:table-row">
+              <th className="pb-2 w-1/5">Position</th>
+              <th className="pb-2 w-1/5">Username</th>
+              <th className="pb-2 w-1/5">Points</th>
+              <th className="pb-2 w-1/5">Parties jouées</th>
+              <th className="pb-2 w-1/5">Victoires</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {leaderboard.map((user, index) => (
+              <tr
+                key={user._id}
+                className="border-b border-gray-200 hidden md:table-row"
+              >
+                <td className="py-2 flex justify-center">
+                  {getMedalIcon(index + 1)}
+                </td>
+                <td className="text-purple-700 font-semibold">
+                  {user.username}
+                </td>
+                <td>{user.points}</td>
+                <td>{user.totalDuelsPlayed}</td>
+                <td>{user.totalWins}</td>
+              </tr>
+            ))}
+            {/* Disposition alternative pour mobile */}
+            {leaderboard.map((user, index) => (
+              <tr
+                key={user._id}
+                className="border-b border-gray-200 md:hidden flex flex-col space-y-2 py-4 px-2 bg-white shadow-sm rounded-lg mb-4"
+              >
+                <td className="flex justify-between">
+                  <span className="font-semibold text-gray-600">
+                    Position :
+                  </span>
+                  <span className="text-gray-800">{index + 1}</span>
+                </td>
+                <td className="flex justify-between">
+                  <span className="font-semibold text-gray-600">
+                    Username :
+                  </span>
+                  <span className="text-purple-700 font-semibold">
+                    {user.username}
+                  </span>
+                </td>
+                <td className="flex justify-between">
+                  <span className="font-semibold text-gray-600">Points :</span>
+                  <span className="text-gray-800">{user.points}</span>
+                </td>
+                <td className="flex justify-between">
+                  <span className="font-semibold text-gray-600">
+                    Parties jouées :
+                  </span>
+                  <span className="text-gray-800">{user.totalDuelsPlayed}</span>
+                </td>
+                <td className="flex justify-between">
+                  <span className="font-semibold text-gray-600">
+                    Victoires :
+                  </span>
+                  <span className="text-gray-800">{user.totalWins}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Boutons Voir plus et Voir moins */}
       <div className="flex justify-center mt-4 space-x-4">

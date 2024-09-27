@@ -13,7 +13,7 @@ const ProfileCard = ({
   points,
 }) => {
   return (
-    <div className="bg-[#F5F5F5] border border-gray-300 rounded-lg shadow-lg shadow-gray-400 p-6 w-[400px] h-[400px] mx-auto">
+    <div className="bg-[#F5F5F5] border border-gray-300 rounded-lg shadow-lg shadow-gray-400 p-6 w-full sm:w-[400px] h-auto mx-auto">
       {/* Section Avatar */}
       <div className="flex justify-between">
         <h2 className="text-xl font-semibold">Profile</h2>
@@ -21,7 +21,8 @@ const ProfileCard = ({
           <img src={EditIcon} alt="Edit Icon" className="w-6 h-6" />
         </button>
       </div>
-      <div className="flex flex-col items-center">
+
+      <div className="flex flex-col items-center mt-4">
         <div className="relative">
           {/* Avatar */}
           <div className="w-20 h-20 bg-purple-600 text-white text-3xl flex items-center justify-center rounded-full">
@@ -32,13 +33,15 @@ const ProfileCard = ({
         </div>
 
         {/* Nom d'utilisateur */}
-        <h2 className="mt-4 text-xl font-semibold text-purple-700">
+        <h2 className="mt-4 text-xl font-semibold text-purple-700 text-center">
           {username}
         </h2>
-        <p className="text-gray-500 text-sm">Membre depuis: {memberSince}</p>
+        <p className="text-gray-500 text-sm text-center">
+          Membre depuis: {memberSince}
+        </p>
 
         {/* Icônes avec informations */}
-        <div className="mt-[90px] flex justify-between w-full">
+        <div className="mt-8 grid grid-cols-3 gap-4 w-full">
           <div className="flex flex-col items-center">
             <div className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-full shadow-md">
               <img src={GamesIcon} alt="Games Icon" className="w-6 h-6" />
@@ -62,7 +65,9 @@ const ProfileCard = ({
         </div>
 
         {/* Points */}
-        <p className="mt-7 text-purple-700 font-semibold">Points: {points}</p>
+        <p className="mt-6 text-purple-700 font-semibold text-center">
+          Points: {points}
+        </p>
       </div>
     </div>
   );
