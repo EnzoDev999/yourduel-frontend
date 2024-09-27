@@ -202,7 +202,6 @@ const DuelQuestion = () => {
         <h2 className="text-xl font-bold text-center text-[#7D3C98] mb-6">
           Duels en cours
         </h2>
-
         {showResult && (
           <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 mb-4 text-center">
             <p className="text-lg font-semibold text-center text-[#7D3C98] mb-4">
@@ -210,7 +209,6 @@ const DuelQuestion = () => {
             </p>
           </div>
         )}
-
         {!showResult && (
           <div className="flex justify-center items-center space-x-4">
             {duels.length > 1 && (
@@ -224,30 +222,44 @@ const DuelQuestion = () => {
                 {duel.question}
               </p>
               <div className="grid grid-cols-2 gap-4 mb-6">
-                {duel.options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSelectOption(option)}
-                    disabled={isSubmitted}
-                    className={`py-3 rounded-lg border border-gray-300 text-center ${
-                      selectedOption === option
-                        ? "bg-[#7D3C98] text-white"
-                        : "bg-white text-gray-600"
-                    } ${
-                      isSubmitted &&
-                      option === duel.correctAnswer &&
-                      "bg-green-500 text-black"
-                    } ${
-                      isSubmitted &&
-                      selectedOption === option &&
-                      selectedOption !== duel.correctAnswer &&
-                      "bg-red-500 text-white"
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
+                {duel.options.map((option, index) => {
+                  // Définir les variables booléennes pour clarifier les conditions
+                  const isCorrect = option === duel.correctAnswer;
+                  const isSelected = option === selectedOption;
+                  const isIncorrectSelection = isSelected && !isCorrect;
+
+                  // Retourner le bouton avec les classes appropriées
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handleSelectOption(option)}
+                      disabled={isSubmitted}
+                      className={`py-3 rounded-lg border border-gray-300 text-center ${
+                        // Ne montrer la couleur que lorsque la réponse est soumise
+                        isSubmitted && isCorrect
+                          ? "bg-green-500 text-black"
+                          : ""
+                      } ${
+                        isSubmitted && isIncorrectSelection
+                          ? "bg-red-500 text-white"
+                          : ""
+                      } ${
+                        // Appliquer le style de sélection uniquement avant la soumission
+                        !isSubmitted && isSelected
+                          ? "bg-[#7D3C98] text-white"
+                          : ""
+                      } ${
+                        !isSubmitted && !isSelected
+                          ? "bg-white text-gray-600"
+                          : ""
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
               </div>
+
               <button
                 onClick={handleSubmit}
                 disabled={!selectedOption || isSubmitted}

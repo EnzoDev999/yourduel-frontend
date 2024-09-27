@@ -165,7 +165,7 @@ const duelSlice = createSlice({
           updatedDuel.options = action.payload.options;
           updatedDuel.correctAnswer = action.payload.correctAnswer;
         } else {
-          console.log("Duel non trouvé lors de l'acceptation"); // Ajoutez ce log pour être sûr que le duel est bien trouvé
+          console.log("Duel non trouvé lors de l'acceptation");
         }
         state.status = "succeeded";
       })
