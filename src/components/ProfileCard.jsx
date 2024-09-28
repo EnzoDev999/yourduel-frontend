@@ -13,7 +13,7 @@ const ProfileCard = ({
   points,
 }) => {
   return (
-    <div className="bg-[#F5F5F5] border border-gray-300 rounded-lg shadow-lg shadow-gray-400 p-6 w-full sm:w-[400px] h-auto mx-auto">
+    <div className="bg-[#F5F5F5] border border-gray-300 rounded-lg shadow-lg shadow-gray-400 p-6 w-full sm:w-[400px] h-[350px] mx-auto overflow-hidden">
       {/* Section Avatar */}
       <div className="flex justify-between">
         <h2 className="text-xl font-semibold">Profile</h2>
