@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import Navbar from "./Navbar";
 import Dashboard from "./Dashboard";
-import CreateDuelSection from "./CreateDuelSection";
+import DuelManagement from "./DuelManagement";
 import DuelQuestion from "./DuelQuestion";
 import DuelHistory from "./DuelHistory";
 
@@ -42,7 +42,7 @@ const Profile = () => {
         <p>No user information available.</p>
       )}
 
-      <CreateDuelSection />
+      <DuelManagement />
 
       {/* Ligne de séparation
       <div className="border-t border-gray-300 max-w-[1440px] flex flex-col justify-center mt-12"></div> */}

@@ -2,7 +2,7 @@ import React from "react";
 import CreateDuel from "./CreateDuel";
 import PendingDuels from "./PendingDuels"; // Import du composant PendingDuels
 
-const CreateDuelSection = () => {
+const DuelManagement = () => {
   return (
     <div className="bg-[#F5F5F5] mx-auto max-w-[1440px] flex flex-col items-center justify-center mt-12">
       {/* Ligne de séparation */}
@@ -27,4 +27,4 @@ const CreateDuelSection = () => {
   );
 };
 
-export default CreateDuelSection;
+export default DuelManagement;
