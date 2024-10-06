@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from "react";
 import ProfileCard from "./ProfileCard";
 import Leaderboard from "./Leaderboard";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { getUserProfile } from "../redux/slices/userSlice";
 
 const Dashboard = () => {
   const { userInfo } = useSelector((state) => state.user);
   const [rank, setRank] = useState("N/A");
+  const dispatch = useDispatch();
   const API_URL =
     window.location.hostname === "localhost"
       ? process.env.REACT_APP_API_URL_LOCAL
       : process.env.REACT_APP_API_URL_NETWORK;
+
+  // Fonction pour recharger le profil après la mise à jour
+  const handleUpdateUsername = () => {
+    dispatch(getUserProfile());
+  };
 
   useEffect(() => {
     const fetchRanking = async () => {
@@ -47,6 +54,7 @@ const Dashboard = () => {
             gamesWon={userInfo.totalWins || 0}
             rank={rank}
             points={userInfo.points || 0}
+            onUpdateUsername={handleUpdateUsername} // Passer la fonction pour recharger le profil
           />
         )}
         <Leaderboard />

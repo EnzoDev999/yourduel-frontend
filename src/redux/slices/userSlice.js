@@ -23,6 +23,37 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// Thunk asynchrone pour remettre à jour le pseudo
+export const updateUserProfile = createAsyncThunk(
+  "user/updateProfile",
+  async (updatedProfileData, { getState, rejectWithValue }) => {
+    try {
+      const { token } = getState().user;
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      // Envoi de la requête de mise à jour sans assigner `response`
+      await axios.put(
+        `${API_URL}/api/auth/updateUsername`,
+        updatedProfileData,
+        config
+      );
+
+      // Retourner le nouveau pseudo directement
+      return { newUsername: updatedProfileData.newUsername };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Erreur lors de la mise à jour du pseudo"
+      );
+    }
+  }
+);
+
 // Cette fonction récupère les infos utilisateur à partir du token
 export const fetchUserFromToken = createAsyncThunk(
   "user/fetchUserFromToken",
@@ -53,11 +84,36 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+// Ajoutez cette action pour récupérer le profil de l'utilisateur
+export const getUserProfile = createAsyncThunk(
+  "user/getProfile",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { token } = getState().user; // Récupérer le token depuis l'état global
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`, // Ajouter l'en-tête Authorization avec le token
+        },
+      };
+
+      const response = await axios.get(`${API_URL}/api/auth/profile`, config);
+      return response.data;
+    } catch (error) {
+      // Si l'appel API échoue, retourner l'erreur
+      return rejectWithValue(
+        error.response.data.message ||
+          "Erreur lors de la récupération du profil"
+      );
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user", // name of the slice
   initialState: {
     userInfo: null,
-    token: null,
+    token: localStorage.getItem("token") ? localStorage.getItem("token") : null,
     isAuthenticated: false,
     status: "idle",
     error: null,
@@ -108,6 +164,33 @@ const userSlice = createSlice({
         state.isAuthenticated = false;
         state.userInfo = null;
         state.error = action.payload;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.userInfo = {
+          ...state.userInfo,
+          username: action.payload.newUsername, // Assurez-vous d'utiliser `newUsername`
+        };
+        state.status = "succeeded";
+        state.error = null;
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(updateUserProfile.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getUserProfile.fulfilled, (state, action) => {
+        state.userInfo = action.payload; // Mettre à jour le profil complet de l'utilisateur
+        state.status = "succeeded";
+        state.error = null;
+      })
+      .addCase(getUserProfile.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(getUserProfile.pending, (state) => {
+        state.status = "loading";
       });
   },
 });
