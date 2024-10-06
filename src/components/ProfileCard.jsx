@@ -8,6 +8,7 @@ import {
   updateUserProfile,
   fetchUserFromToken,
 } from "../redux/slices/userSlice";
+import { io } from "socket.io-client"; // Import du client WebSocket
 
 const ProfileCard = ({
   username,
@@ -24,22 +25,36 @@ const ProfileCard = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
 
-  // Utiliser le selector pour toujours récupérer le dernier username depuis l'état global
+  // Utiliser le selector pour toujours récupérer le dernier username et points depuis l'état global
   const currentUser = useSelector((state) => state.user.userInfo);
   const token = useSelector((state) => state.user.token);
 
-  // Ecouter les changements dans 'username' et mettre à jour 'newUsername'
+  // Synchroniser `newUsername` et `points` avec les valeurs du store Redux
   useEffect(() => {
     if (currentUser && currentUser.username) {
-      setNewUsername(currentUser.username); // Mettre à jour localement le nouveau username
+      setNewUsername(currentUser.username);
     }
-  }, [currentUser]); // Exécuter cette fonction uniquement lorsque 'currentUser' change
+  }, [currentUser]);
 
-  // Appeler fetchUserFromToken après chaque duel ou modification des points
+  // Initialisation du WebSocket pour écouter les mises à jour du leaderboard
   useEffect(() => {
-    if (token) {
-      dispatch(fetchUserFromToken(token)); // Récupérer les informations utilisateur mises à jour
-    }
+    const API_URL =
+      window.location.hostname === "localhost"
+        ? process.env.REACT_APP_API_URL_LOCAL
+        : process.env.REACT_APP_API_URL_NETWORK;
+    const socket = io(API_URL);
+
+    // Écoute de l'événement `leaderboardUpdated` via WebSocket
+    socket.on("leaderboardUpdated", () => {
+      console.log("Leaderboard updated - fetching new user profile");
+      if (token) {
+        dispatch(fetchUserFromToken(token)); // Récupérer le profil mis à jour en cas de mise à jour du leaderboard
+      }
+    });
+
+    return () => {
+      socket.disconnect(); // Fermer la connexion au WebSocket lors du démontage
+    };
   }, [dispatch, token]);
 
   const handleUsernameChange = async () => {
@@ -62,6 +77,8 @@ const ProfileCard = ({
         setIsEditing(false);
         setError("");
         onUpdateUsername(); // Recharger le profil complet
+        // Re-fetch the user profile after username change
+        dispatch(fetchUserFromToken(token)); // Assurez-vous de recharger le profil à partir du backend
       }
     } catch (error) {
       // Gestion des erreurs retournées par le slice Redux
@@ -95,7 +112,7 @@ const ProfileCard = ({
           {/* Avatar */}
           <div className="w-20 h-20 bg-purple-600 text-white text-3xl flex items-center justify-center rounded-full">
             {/* Utiliser displayUsername pour éviter l'accès à undefined */}
-            {username ? username[0].toUpperCase() : "U"}
+            {newUsername ? newUsername[0].toUpperCase() : "U"}
           </div>
           {/* Petit badge */}
           <span className="absolute bottom-0.5 right-1 block w-5 h-5 bg-white rounded-full border-2 border-purple-600"></span>
@@ -136,7 +153,7 @@ const ProfileCard = ({
         ) : (
           <div>
             <h2 className="mt-4 text-xl font-semibold text-purple-700 text-center">
-              {username || "Utilisateur"}
+              {currentUser ? currentUser.username : "Utilisateur"}
             </h2>
             <p className="text-gray-500 text-sm text-center">
               Membre depuis: {memberSince}
