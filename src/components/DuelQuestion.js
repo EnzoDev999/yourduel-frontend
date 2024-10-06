@@ -21,8 +21,6 @@ const DuelQuestion = () => {
   const [submittedAnswers, setSubmittedAnswers] = useState({});
   const [feedbacks, setFeedbacks] = useState({});
   const [currentDuelIndex, setCurrentDuelIndex] = useState(0);
-  const [duelResult, setDuelResult] = useState(null);
-  const [showResult, setShowResult] = useState(false);
 
   // Sélection des duels avec des questions en cours
   const duels = useSelector((state) =>
@@ -84,19 +82,7 @@ const DuelQuestion = () => {
 
     socket.on("duelCompleted", (updatedDuel) => {
       if (updatedDuel.status === "completed") {
-        if (updatedDuel.winner === userId) {
-          setDuelResult("Vous avez gagné !");
-        } else if (updatedDuel.winner === "draw") {
-          setDuelResult("Égalité !");
-        } else {
-          setDuelResult("Vous avez perdu !");
-        }
-
-        setShowResult(true);
-        setTimeout(() => {
-          dispatch(removeDuel(updatedDuel._id));
-          setShowResult(false);
-        }, 5000);
+        dispatch(removeDuel(updatedDuel._id));
       }
 
       dispatch(
@@ -203,82 +189,72 @@ const DuelQuestion = () => {
           Duels en cours
         </h2>
 
-        {showResult && (
-          <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 mb-4 text-center">
+        <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
+          {duels.length > 1 && (
+            <button onClick={prevDuel}>
+              <img src={LeftArrowIcon} alt="Previous" className="w-6 h-6" />
+            </button>
+          )}
+
+          <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full md:w-auto">
             <p className="text-lg font-semibold text-center text-[#7D3C98] mb-4">
-              {duelResult}
+              {duel.question}
             </p>
-          </div>
-        )}
-
-        {!showResult && (
-          <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
-            {duels.length > 1 && (
-              <button onClick={prevDuel}>
-                <img src={LeftArrowIcon} alt="Previous" className="w-6 h-6" />
-              </button>
-            )}
-
-            <div className="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300 w-full md:w-auto">
-              <p className="text-lg font-semibold text-center text-[#7D3C98] mb-4">
-                {duel.question}
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {duel.options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSelectOption(option)}
-                    disabled={isSubmitted}
-                    className={`py-3 rounded-lg border border-gray-300 text-center ${
-                      isSubmitted && option === duel.correctAnswer
-                        ? "bg-green-500 text-black"
-                        : ""
-                    } ${
-                      isSubmitted &&
-                      selectedOption === option &&
-                      selectedOption !== duel.correctAnswer
-                        ? "bg-red-500 text-white"
-                        : ""
-                    } ${
-                      !isSubmitted && selectedOption === option
-                        ? "bg-[#7D3C98] text-white"
-                        : ""
-                    } ${
-                      !isSubmitted && !selectedOption === option
-                        ? "bg-white text-gray-600"
-                        : ""
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={handleSubmit}
-                disabled={!selectedOption || isSubmitted}
-                className={`bg-[#7D3C98] text-white py-2 px-6 rounded-full w-full font-semibold ${
-                  !selectedOption || isSubmitted
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-[#663399]"
-                }`}
-              >
-                {isSubmitted ? "Réponse soumise" : "Valider"}
-              </button>
-              {feedback && (
-                <p className="mt-4 text-center text-lg font-semibold text-gray-700">
-                  {feedback}
-                </p>
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {duel.options.map((option, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSelectOption(option)}
+                  disabled={isSubmitted}
+                  className={`py-3 rounded-lg border border-gray-300 text-center ${
+                    isSubmitted && option === duel.correctAnswer
+                      ? "bg-green-500 text-black"
+                      : ""
+                  } ${
+                    isSubmitted &&
+                    selectedOption === option &&
+                    selectedOption !== duel.correctAnswer
+                      ? "bg-red-500 text-white"
+                      : ""
+                  } ${
+                    !isSubmitted && selectedOption === option
+                      ? "bg-[#7D3C98] text-white"
+                      : ""
+                  } ${
+                    !isSubmitted && !selectedOption === option
+                      ? "bg-white text-gray-600"
+                      : ""
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
             </div>
 
-            {duels.length > 1 && (
-              <button onClick={nextDuel}>
-                <img src={RightArrowIcon} alt="Next" className="w-6 h-6" />
-              </button>
+            <button
+              onClick={handleSubmit}
+              disabled={!selectedOption || isSubmitted}
+              className={`bg-[#7D3C98] text-white py-2 px-6 rounded-full w-full font-semibold ${
+                !selectedOption || isSubmitted
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-[#663399]"
+              }`}
+            >
+              {isSubmitted ? "Réponse soumise" : "Valider"}
+            </button>
+            {feedback && (
+              <p className="mt-4 text-center text-lg font-semibold text-gray-700">
+                {feedback}
+              </p>
             )}
           </div>
-        )}
+
+          {duels.length > 1 && (
+            <button onClick={nextDuel}>
+              <img src={RightArrowIcon} alt="Next" className="w-6 h-6" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
