@@ -4,7 +4,10 @@ import GamesIcon from "../assets/icon/Games-icon.svg"; // Import d'une autre ic�
 import RankIcon from "../assets/icon/medal-icon.svg"; // Import de l'icône de classement
 import EditIcon from "../assets/icon/edit-icon.svg"; // Import de l'icône d'édition
 import { useDispatch, useSelector } from "react-redux";
-import { updateUserProfile } from "../redux/slices/userSlice";
+import {
+  updateUserProfile,
+  fetchUserFromToken,
+} from "../redux/slices/userSlice";
 
 const ProfileCard = ({
   username,
@@ -23,6 +26,7 @@ const ProfileCard = ({
 
   // Utiliser le selector pour toujours récupérer le dernier username depuis l'état global
   const currentUser = useSelector((state) => state.user.userInfo);
+  const token = useSelector((state) => state.user.token);
 
   // Ecouter les changements dans 'username' et mettre à jour 'newUsername'
   useEffect(() => {
@@ -30,6 +34,13 @@ const ProfileCard = ({
       setNewUsername(currentUser.username); // Mettre à jour localement le nouveau username
     }
   }, [currentUser]); // Exécuter cette fonction uniquement lorsque 'currentUser' change
+
+  // Appeler fetchUserFromToken après chaque duel ou modification des points
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchUserFromToken(token)); // Récupérer les informations utilisateur mises à jour
+    }
+  }, [dispatch, token]);
 
   const handleUsernameChange = async () => {
     if (isSubmitting) return; // Empêcher l'envoi multiple
@@ -159,7 +170,7 @@ const ProfileCard = ({
 
         {/* Points */}
         <p className="mt-6 text-purple-700 font-semibold text-center">
-          Points: {points}
+          Points: {currentUser ? currentUser.points : points}
         </p>
       </div>
     </div>
